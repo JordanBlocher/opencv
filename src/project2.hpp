@@ -25,7 +25,7 @@ template< class T >
 int testSharpening(Image<T>&, MasqueType, const char*);
 
 template< class T >
-int testUnsharpening(Image<T>&, Image<T>&, const char*, double);
+int testUnsharpening(Image<T>&, const char*, double);
 
 
 int project2(int argc, char* argv[])
@@ -45,7 +45,7 @@ int project2(int argc, char* argv[])
             "\t Sharpening Options: 1. <0> for Sobel Filter\n"
             "\t\t\t     2. <1> for Prewitt Filter\n"
             "\t\t\t     3. <2> for Laplacian Filter\n\n"
-            "\t 6. <image> <outfile> <6> <smoothImage> <A> for Unsharpening (High Boost/Low Pass)\n"
+            "\t 6. <image> <outfile> <6> <A> for Unsharpening (High Boost/Low Pass)\n"
             "\t (A = 1 for High Pass Filter)\n\n"
             "\tExample: ./process_image boat.png boatSmooth15x15 2 15 (smooth boat using Gaussian 15x15)"<<endl; 
         return -1;
@@ -73,24 +73,16 @@ int project2(int argc, char* argv[])
         testSmoothing(image, (MasqueType)(atoi(argv[4])), argv[2]);
     
     if(atoi(argv[3]) == 3)
-        testMedian(image, (int)(atoi(argv[4])), argv[2], (int)atoi(argv[3]));
+        testMedian(image, (int)(atoi(argv[4])), argv[2], (int)atoi(argv[5]));
 
     if(atoi(argv[3]) == 4)
-        testAveraging(image, (int)(atoi(argv[4])), argv[2], (int)atoi(argv[3]));
+        testAveraging(image, (int)(atoi(argv[4])), argv[2], (int)atoi(argv[5]));
 
     if(atoi(argv[3]) == 5)
         testSharpening(image, (MasqueType)(atoi(argv[4])), argv[2]);
     
     if(atoi(argv[3]) == 6)
-    {
-        Image<uchar> smooth(argv[4], GRAY);
-        if(! smooth.source.data )                              
-        {
-            cout <<  "Could not open or find the image" << std::endl ;
-            return -1;
-        }
-        testUnsharpening(image, smooth, argv[2], (double)atof(argv[3]));
-    }
+        testUnsharpening(image, argv[2], (double)atof(argv[4]));
  
     waitKey(0);
     return 0;
@@ -149,9 +141,15 @@ int testMedian(Image<T> &image, int filterSize, const char* outfile, int percent
     Noise::SaltandPepper<T>(image.source, percentage);
     imshow("SaltandPepper", image.source);
 
+    ostringstream sout;
+    sout << "img/filter/" << outfile << "sp.png";
+    cout << "Writing image to " << sout.str() << endl;
+    imwrite(sout.str().c_str(), image.source);
+    sout.str("");
+
+
     Filter::Median<T>(image.source, filterSize, true);
 
-    ostringstream sout;
     sout << "img/filter/" << outfile << ".png";
     cout << "Writing image to " << sout.str() << endl;
     imwrite(sout.str().c_str(), image.source);
@@ -167,11 +165,11 @@ int testAveraging(Image<T> &image, int filterSize, const char* outfile, int perc
 {
     Noise::SaltandPepper<T>(image.source, percentage);
     imshow("SaltandPepper", image.source);
-
+    
+    ostringstream sout;
     cv::Mat filter(filterSize, filterSize, CV_64F, Scalar(1.0));
     Filter::Correlation<T>(image.source, filter, true, true);
 
-    ostringstream sout;
     sout << "img/filter/" << outfile << ".png";
     cout << "Writing image to " << sout.str() << endl;
     imwrite(sout.str().c_str(), image.source);
@@ -209,7 +207,7 @@ int testSharpening(Image<T> &image, MasqueType type, const char* outfile)
     ostringstream sout;
     sout << "img/filter/" << outfile << msg <<"x.png";
     cout << "Writing image to " << sout.str() << endl;
-    imwrite(sout.str().c_str(), image.source);
+    imwrite(sout.str().c_str(), xshow);
     sout.str("");
     
     imshow("Sharpening x", xshow);
@@ -250,19 +248,55 @@ int testSharpening(Image<T> &image, MasqueType type, const char* outfile)
 
 
 template< class T >
-int testUnsharpening(Image<T> &image, Image<T> &smooth, const char* outfile, double A)
+int testUnsharpening(Image<T> &image, const char* outfile, double A)
 {
     int channel = 0;
-    cv::Mat unsharp = A*image.source - smooth.source;
-    Util::Normalize<T>(unsharp, Scalar(255.0), channel);
-
-    ostringstream sout;
-    sout << "img/filter/" << outfile << ".png";
-    cout << "Writing image to " << sout.str() << endl;
-    imwrite(sout.str().c_str(), image.source);
-    sout.str("");
+    int type = image.source.type();
+    cv::Mat orig = image.source.clone();
     
-    imshow("Unsharpening", unsharp);
+    Mat masque;
+    masque = Filter::Gaussian15();
+    
+    Scalar sum = cv::sum(masque);
+    masque /= sum[channel];
+
+    cv::Mat smooth = Filter::Correlation<T>(orig, masque, false, false);
+
+    image.source.convertTo(image.source, CV_64F);
+    cv::Mat unsharp = image.source * A - smooth;
+    
+  //  Util::Normalize<double>(unsharp, Scalar(255.0), channel);
+    unsharp.convertTo(unsharp, type);
+
+    image.source.convertTo(image.source, CV_8U);
+    ostringstream sout;
+    sout << "img/filter/" << outfile << "15nrm.png";
+    cout << "Writing image to " << sout.str() << endl;
+    imwrite(sout.str().c_str(), unsharp);
+    sout.str("");
+   
+    imshow("Unsharpening15", unsharp);
+
+    masque = Filter::Gaussian7();
+
+    sum = cv::sum(masque);
+    masque /= sum[channel];
+
+    smooth = Filter::Correlation<T>(orig, masque, false, false);
+
+    image.source.convertTo(image.source, CV_64F);
+    unsharp = image.source * A - smooth;
+    
+//    Util::Normalize<double>(unsharp, Scalar(255.0), channel);
+    unsharp.convertTo(unsharp, type);
+
+    image.source.convertTo(image.source, CV_8U);
+    sout << "img/filter/" << outfile << "7nrm.png";
+    cout << "Writing image to " << sout.str() << endl;
+    imwrite(sout.str().c_str(), unsharp);
+    sout.str("");
+   
+    imshow("Unsharpening7", unsharp);
 
     return 0;
 }

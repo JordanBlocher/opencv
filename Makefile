@@ -28,11 +28,29 @@ clean:
 
 .PHONY: clean
 
+project3: experiment1 experiment2 experiment3
+
+experiment1:
+	./bin/process_image 1 a
+	./bin/process_image 1 b
+	./bin/process_image 1 c
+	./bin/process_image 1 d
+	./bin/process_image 1 e ./bin/assets/rect.dat
+
+experiment2:
+	./bin/process_image 2 a
+	./bin/process_image 2 b
+	./bin/process_image 2 c
+
+experiment3:
+	./bin/process_image 3
+
 
 project2: correlation smoothing median averaging unsharpening sharpening
 
 correlation:
 	./bin/process_image ./bin/assets/Image.pgm corr 1 ./bin/assets/Pattern.pgm
+	./bin/process_image ./bin/assets/Image2.pgm corr2 1 ./bin/assets/Pattern2.pgm
 
 smoothing:
 	./bin/process_image ./bin/assets/lenna.pgm lenna15smth 2 15
@@ -45,12 +63,10 @@ median:
 	./bin/process_image ./bin/assets/lenna.pgm lenna7med30 3 7 30
 	./bin/process_image ./bin/assets/lenna.pgm lenna15med50 3 15 50
 	./bin/process_image ./bin/assets/lenna.pgm lenna7med50 3 7 50
-	./bin/process_image ./bin/assets/lenna.pgm lenna7med50 3 7 90
 	./bin/process_image ./bin/assets/boat.pgm boat7med30 3 7 30
 	./bin/process_image ./bin/assets/boat.pgm boat15med30 3 15 30
 	./bin/process_image ./bin/assets/boat.pgm boat7med50 3 7 50
-	./bin/process_image ./bin/assets/boat.pgm boat7med50 3 15 50
-	./bin/process_image ./bin/assets/boat.pgm boat7med50 3 15 90
+	./bin/process_image ./bin/assets/boat.pgm boat15med50 3 15 50
 
 averaging:
 	./bin/process_image ./bin/assets/lenna.pgm lenna15avg 4 15 0
@@ -64,7 +80,7 @@ averaging:
 	./bin/process_image ./bin/assets/boat.pgm boat7avg30 4 7 30
 	./bin/process_image ./bin/assets/boat.pgm boat15avg30 4 15 30
 	./bin/process_image ./bin/assets/boat.pgm boat7avg50 4 7 50
-	./bin/process_image ./bin/assets/boat.pgm boat7avg50 4 15 50
+	./bin/process_image ./bin/assets/boat.pgm boat15avg50 4 15 50
 
 sharpening:
 	./bin/process_image ./bin/assets/lenna.pgm lennasobel 5 0
@@ -75,17 +91,19 @@ sharpening:
 	./bin/process_image ./bin/assets/f_16.pgm f_16laplace 5 2
 	
 unsharpening:
-	./bin/process_image ./bin/assets/lenna.pgm lenna15unshrpA0-5 6 ./img/filter/lenna15smth.pgm 0.5
-	./bin/process_image ./bin/assets/lenna.pgm lenna15unshrpA1-5 6 ./img/filter/lenna15smth.pgm 1.5
-	./bin/process_image ./bin/assets/lenna.pgm lenna15unshrpA1 6 ./img/filter/lenna15smth.pgm 1
-	./bin/process_image ./bin/assets/lenna.pgm lenna15unshrpA2 6 ./img/filter/lenna15smth.pgm 2
-	./bin/process_image ./bin/assets/lenna.pgm lenna15unshrpA2 6 ./img/filter/lenna15smth.pgm 2
-	./bin/process_image ./bin/assets/lenna.pgm lenna15unshrpA2-5 6 ./img/filter/lenna15smth.pgm 2.5
-	./bin/process_image ./bin/assets/boat.pgm f_167unshrpA0-5 6 ./img/filter/f_16-7smth.pgm 0.5
-	./bin/process_image ./bin/assets/boat.pgm f_167unshrpA1 6 ./img/filter/f_16-7smth.pgm 1
-	./bin/process_image ./bin/assets/boat.pgm f_167unshrpA1-5 6 ./img/filter/f_16-7smth.pgm 1.5
-	./bin/process_image ./bin/assets/boat.pgm f_167unshrpA2 6 ./img/filter/f_16-7smth.pgm 2
-	./bin/process_image ./bin/assets/boat.pgm f_167unshrpA2-5 6 ./img/filter/f_16-7smth.pgm 2.5
+	./bin/process_image ./bin/assets/lenna.pgm lennaunshrpA0-5 6 0.5
+	./bin/process_image ./bin/assets/lenna.pgm lennaunshrpA1 6 1
+	./bin/process_image ./bin/assets/lenna.pgm lennaunshrpA1-5 6 1.5
+	./bin/process_image ./bin/assets/lenna.pgm lennaunshrpA2 6 2
+	./bin/process_image ./bin/assets/lenna.pgm lennaunshrpA2-5 6 2.5
+	./bin/process_image ./bin/assets/lenna.pgm lennaunshrpA4 6 4
+	./bin/process_image ./bin/assets/f_16.pgm f_16unshrpA0-5 6 0.5
+	./bin/process_image ./bin/assets/f_16.pgm f_16unshrpA1 6 1
+	./bin/process_image ./bin/assets/f_16.pgm f_16unshrpA1-5 6 1.5
+	./bin/process_image ./bin/assets/f_16.pgm f_16unshrpA2 6 2
+	./bin/process_image ./bin/assets/f_16.pgm f_16unshrpA2-5 6 2.5
+	./bin/process_image ./bin/assets/f_16.pgm f_16unshrpA3 6 3
+	./bin/process_image ./bin/assets/f_16.pgm f_16unshrpA4 6 4
 	
 
 project1: quantization equalization specification interpolation

@@ -6,14 +6,16 @@
 #include <opencv2/opencv.hpp>
 #include <cmath>
 #include <assert.h>
+#include <fstream>
+
+#define coeff 2.0
 
 namespace Util
 {
-
     template< typename T>
     void PadImage(cv::Mat& padded, const cv::Mat &source, int padX, int padY)
     {
-        padded = cv::Mat( source.rows + padY, source.cols + padX, source.type(), cv::Scalar(0.0));
+        padded = cv::Mat( source.rows + padY, source.cols + padX, source.type(), cv::Scalar(0.0, 0.0, 0.0));
         cv::Mat roi = padded(cv::Rect(padX/2, padY/2, source.cols, source.rows));
         source.copyTo(roi);
     }
@@ -25,6 +27,58 @@ namespace Util
         double v1 = v.at<double>(0,1);
         return (( (floor(v0) - ceil(v0) == 0) ) && ( (floor(v1) - ceil(v1) == 0) )); 
     }
+
+    cv::Mat CreateImage(const char* filename, std::vector<uchar> v)
+    {
+        double in;
+        std::ifstream fin(filename);
+        if(fin)
+        {
+            while( !fin.eof() )
+            {
+                fin >> in;
+                v.push_back(static_cast<uchar>(in));
+                v.push_back(static_cast<uchar>(0));
+            }
+            fin.close();
+        }
+        
+        cv::Mat dest(( v.size() - 1)/2,1,CV_8UC2);
+        for ( int i = 0; i < dest.rows; ++i )
+            dest.at<cv::Vec2b>(i,0) = cv::Vec2b(v[2*i], v[2*i+1]);
+        return dest;
+    }
+
+    cv::Mat CreateImage(std::vector<uchar> v)
+    {
+        cv::Mat dest(v.size()/2,1,CV_8UC2);
+        for ( int i = 0; i < dest.rows; ++i )
+            dest.at<cv::Vec2b>(i,0) = cv::Vec2b(v[2*i], v[2*i+1]);
+        return dest;
+    }
+
+    cv::Mat CreateImage( double (*f)(double), int N ,int u, std::vector<double> v)
+    {
+        for(int i=0; i<N; i++)
+        {
+            v.push_back((*f)(M_PI*i*u/N));
+            v.push_back(0.0);
+        }
+        cv::Mat dest(v.size()/2,1,CV_64FC2);
+        for ( int i = 0; i < dest.rows; ++i )
+            dest.at<cv::Vec2b>(i,0) = cv::Vec2b(v[2*i], v[2*i+1]);
+        return dest;
+    }
+
+    cv::Mat CreateImage(int b, int w)
+    {
+        cv::Mat black(b, b, CV_8UC2, cv::Scalar(0.0, 0.0));
+        cv::Mat white(w, w, CV_8UC2, cv::Scalar(255.0, 0.0));
+        cv::Mat roi = black(cv::Rect(black.cols/2 - white.cols/2, black.rows/2 - white.rows/2, white.cols, white.rows));
+        white.copyTo(roi);
+        return black;
+    }
+
 
     template< class T >
     double ComputeSquareError(const cv::Mat &source, const cv::Mat &compare, cv::Mat &squareError, int size, int channel)

@@ -95,7 +95,8 @@ flags = [
 '-DNDEBUG',
 '-DUSE_CLANG_COMPLETER',
 '-std=c++11',
-'-I/home/frags/repos/cs674/include'
+'-I/home/frags/repos/cs674/include',
+'-Iinclude'
 ] + cv2
 
 # Set this to the absolute path to the folder (NOT the file!) containing the
