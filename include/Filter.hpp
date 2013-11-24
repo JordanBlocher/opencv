@@ -11,6 +11,24 @@ enum MasqueType {GAUSSIAN15 = 15, GAUSSIAN7 = 7, SOBEL = 0, PREWITT = 1, LAPLACI
 
 namespace Filter
 {
+
+    cv::Mat Band(double lo, double high, int width, int height, bool pass)
+    {
+        double val = pass ? 1.0 : 0.0;
+        cv::Mat dest(width, height, CV_64FC2, cv::Scalar(val, val));
+        val = pass ? val - 1.0 : val + 1.0;
+        for(int i=0; i<dest.rows; i++)
+            for(int j=0; j<dest.cols; j++)
+            {
+                double dx = (i-(width-1)/2.0)*(i-(width-1)/2.0);
+                double dy = (j-(height-1)/2.0)*(j-(height-1)/2.0);
+                if( dx + dy > lo*lo && dx + dy < high*high)
+                    dest.at<cv::Vec2d>(i, j) = cv::Vec2d(val, val);
+            }
+                    
+        return dest;
+    }
+
     template< typename T >
     cv::Mat Correlation(cv::Mat& source, const cv::Mat& filter, bool normalize, bool apply)
     {

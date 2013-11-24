@@ -31,55 +31,9 @@
 import os
 import ycm_core
 
-qt4 = [
-'-DQT_NO_DEBUG_OUTPUT',
-'-DQT_USE_FAST_CONCATENATION',
-'-DQT_USE_FAST_OPERATOR_PLUS',
-'-D_GNU_SOURCE',
-'-DQT_NO_STL',
-'-DQT_NO_CAST_TO_ASCII',
-'-D_REENTRANT',
-'-DKDE_DEPRECATED_WARNINGS',
-'-I/usr/include',
-'-I/usr/include/qt4',
-'-I/usr/include/qt4/Qt',
-'-I/usr/include/qt4/Qt3Support',
-'-I/usr/include/qt4/QtCore',
-'-I/usr/include/qt4/QtDBus',
-'-I/usr/include/qt4/QtDeclarative',
-'-I/usr/include/qt4/QtDesigner',
-'-I/usr/include/qt4/QtDesigner',
-'-I/usr/include/qt4/QtGui',
-'-I/usr/include/qt4/QtHelp',
-'-I/usr/include/qt4/QtNetwork',
-'-I/usr/include/qt4/QtOpenGL',
-'-I/usr/include/qt4/QtScript',
-'-I/usr/include/qt4/QtScriptTools',
-'-I/usr/include/qt4/QtSql',
-'-I/usr/include/qt4/QtSvg',
-'-I/usr/include/qt4/QtTest',
-'-I/usr/include/qt4/QtUiTools',
-'-I/usr/include/qt4/QtWebKit',
-'-I/usr/include/qt4/QtXml',
-'-I/usr/include/qt4/QtXmlPatterns',
-'-I/usr/share/qt4/mkspecs/default'
-]
-
 cv2 = [
-'-I/usr/local/include/opencv',
+'-I/usr/include/opencv',
 '-I/usr/local/include'
-]
-
-# Defines the GL_CODE_COMPLETE_ONLY_FLAG macro, this means do the following in the C++ code
-# #ifdef GL_CODE_COMPLETE_ONLY_FLAG
-#     #include <GL/gl.h>
-#     #include <GL/glext.h>
-# #else
-#     #include <GL/glew.h>
-#     #include <GL/gl.h>
-# #endif
-gl = [
-'-DGL_GLEXT_PROTOTYPES'
 ]
 
 # These are the compilation flags that will be used in case there's no
@@ -87,11 +41,8 @@ gl = [
 # CHANGE THIS LIST OF FLAGS. YES, THIS IS THE DROID YOU HAVE BEEN LOOKING FOR.
 flags = [
 '-Wall',
-'-DYOU_COMPLETE_ME',
 '-Wextra',
 '-Werror',
-'-Wno-long-long',
-'-Wno-variadic-macros',
 '-DNDEBUG',
 '-DUSE_CLANG_COMPLETER',
 '-std=c++11',

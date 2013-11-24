@@ -12,6 +12,56 @@
 
 namespace Util
 {
+    // -normalize values to [0, size]
+    template< class T >
+    void Normalize(cv::Mat &mat, const cv::Scalar &size, int channel)
+    {
+        double min, max;
+        cv::minMaxLoc(mat, &min, &max);
+        for(int i=0; i<mat.rows; i++)
+        {
+            for(int j=0; j<mat.cols; j++)
+            {
+                mat.at<T>(i, j, channel) -= min;
+                mat.at<T>(i, j, channel) *= ( size[channel] / (max - min));
+            }
+        }
+    }
+
+    template< typename T>
+    void Shift(cv::Mat& source)
+    {
+        for ( int i =0; i < source.rows; ++i )
+            for ( int j = 0; j < source.cols; ++j )
+                if ( (i+j)%2 != 0 )
+                {
+                    source.at<T>(i,j)[0] *= -1;
+                    source.at<T>(i,j)[1] *= -1;
+                }
+    }
+
+    template< typename T>
+    cv::Mat Magnitude(const cv::Mat& source, double c, bool log) 
+    {
+        cv::vector<cv::Mat> channels(2);
+        cv::Mat mag, reSqr, imSqr;
+        cv::Mat logMag;
+
+        cv::split(source, channels);
+        cv::multiply(channels[0], channels[0], reSqr);
+        cv::multiply(channels[1], channels[1], imSqr);
+        cv::sqrt(reSqr + imSqr, mag);
+       
+        if(log)
+        {
+            cv::log(c * cv::abs(mag + 1), logMag);
+            Util::Normalize<double>(logMag, cv::Scalar(1.0), 0);
+            return logMag;
+        }
+        else
+            return mag;
+    }
+
     template< typename T>
     void PadImage(cv::Mat& padded, const cv::Mat &source, int padX, int padY)
     {
@@ -97,23 +147,6 @@ namespace Util
                 sum += squareError.at<double>(0, j);
             }
         return sum; 
-    }
-
-
-    // -normalize values to [0, size]
-    template< class T >
-    void Normalize(cv::Mat &mat, const cv::Scalar &size, int channel)
-    {
-        double min, max;
-        cv::minMaxLoc(mat, &min, &max);
-        for(int i=0; i<mat.rows; i++)
-        {
-            for(int j=0; j<mat.cols; j++)
-            {
-                mat.at<T>(i, j, channel) -= min;
-                mat.at<T>(i, j, channel) *= ( size[channel] / (max - min));
-            }
-        }
     }
 
     // -define histogram as size = image depth
